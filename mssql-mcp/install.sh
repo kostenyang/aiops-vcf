@@ -69,8 +69,8 @@ step "設定功能選項"
 ask "允許 DML 寫入 (INSERT/UPDATE/DELETE)? [Y/n]:"
 read -rp "  > " _w; ALLOW_WRITE="true"; [[ "$_w" =~ ^[Nn] ]] && ALLOW_WRITE="false"
 
-ask "允許 DDL 操作 (CREATE/DROP/ALTER)? [y/N]:"
-read -rp "  > " _d; ALLOW_DDL="false"; [[ "$_d" =~ ^[Yy] ]] && ALLOW_DDL="true"
+ask "允許 DDL 操作 (CREATE/DROP/ALTER)? [Y/n]:"
+read -rp "  > " _d; ALLOW_DDL="true"; [[ "$_d" =~ ^[Nn] ]] && ALLOW_DDL="false"
 
 ask "查詢最大回傳列數 [1000]:"
 read -rp "  > " MAX_ROWS; MAX_ROWS="${MAX_ROWS:-1000}"
