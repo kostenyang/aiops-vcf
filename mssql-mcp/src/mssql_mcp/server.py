@@ -6,7 +6,7 @@ Exposes Microsoft SQL Server operations as MCP tools for Claude.
 Tools:
   mssql_test_connection   - 測試 MSSQL 連線
   mssql_execute_query     - 執行 SELECT 查詢
-  mssql_execute_statement - 執行 INSERT/UPDATE/DELETE
+  mssql_execute_statement - 執行 INSERT/UPDATE/DELETE 及 CREATE/DROP/ALTER 等 DDL
   mssql_list_databases    - 列出所有使用者資料庫
   mssql_list_schemas      - 列出指定 DB 的 Schema
   mssql_list_tables       - 列出資料表與檢視表
@@ -121,14 +121,21 @@ def mssql_execute_query(sql: str, database: str = "") -> str:
 @mcp.tool()
 def mssql_execute_statement(sql: str, database: str = "") -> str:
     """
-    執行 DML 語句（INSERT、UPDATE、DELETE、MERGE）並回傳影響列數。
-    需要在 .env 設定 ALLOW_WRITE=true 才能使用。
+    執行 SQL 語句並回傳影響列數或執行結果。
+    支援：
+      - DDL：CREATE DATABASE、CREATE TABLE、DROP TABLE、ALTER TABLE 等
+      - DML：INSERT、UPDATE、DELETE、MERGE
+      - 其他非查詢語句：EXEC、TRUNCATE 等
 
-    sql      : 要執行的 DML SQL 語句
-    database : 目標資料庫名稱（留空則使用預設 DB）
+    sql      : 要執行的 SQL 語句（非 SELECT）
+    database : 目標資料庫名稱（留空則使用預設 DB；CREATE DATABASE 不需指定）
 
     Examples:
-      mssql_execute_statement("INSERT INTO dbo.Logs (msg, ts) VALUES ('test', GETDATE())")
+      mssql_execute_statement("CREATE DATABASE MyNewDB")
+      mssql_execute_statement("CREATE TABLE dbo.Users (id INT PRIMARY KEY, name NVARCHAR(100))", "MyNewDB")
+      mssql_execute_statement("DROP TABLE dbo.TempData", "MyNewDB")
+      mssql_execute_statement("ALTER TABLE dbo.Users ADD email NVARCHAR(200)", "MyNewDB")
+      mssql_execute_statement("INSERT INTO dbo.Logs (msg, ts) VALUES ('test', GETDATE())", "MyNewDB")
       mssql_execute_statement("UPDATE dbo.Config SET value='1' WHERE key='enabled'", "AppDB")
       mssql_execute_statement("DELETE FROM dbo.TempData WHERE created_at < DATEADD(day,-7,GETDATE())")
     """
