@@ -83,14 +83,25 @@ def execute_query(sql: str, database: str | None = None) -> dict:
 
 
 def execute_statement(sql: str, database: str | None = None) -> dict:
-    """Execute a DML statement (INSERT/UPDATE/DELETE) and return affected row count."""
+    """Execute a DML/DDL statement and return affected row count.
+
+    DDL statements (CREATE/DROP/ALTER) run with autocommit=True because
+    SQL Server does not allow them inside an explicit transaction.
+    """
     _check_sql_permissions(sql)
-    with get_connection(database) as conn:
+    is_ddl = bool(_DDL_PATTERN.search(sql))
+    conn_str = _build_connection_string(database)
+    conn = pyodbc.connect(conn_str, timeout=QUERY_TIMEOUT, autocommit=is_ddl)
+    conn.timeout = QUERY_TIMEOUT
+    try:
         cursor = conn.cursor()
         cursor.execute(sql)
-        affected = cursor.rowcount
-        conn.commit()
-        return {"affected_rows": affected, "success": True}
+        affected = cursor.rowcount if not is_ddl else -1
+        if not is_ddl:
+            conn.commit()
+        return {"affected_rows": affected, "success": True, "autocommit": is_ddl}
+    finally:
+        conn.close()
 
 
 def list_databases() -> list[str]:
