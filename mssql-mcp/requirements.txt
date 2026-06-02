@@ -1,0 +1,6 @@
+mcp[cli]>=1.0.0
+fastmcp>=0.1.0
+pyodbc>=5.0.0
+python-dotenv>=1.0.0
+uvicorn>=0.30.0
+paramiko>=3.0.0

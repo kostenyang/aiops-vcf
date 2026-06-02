@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "mssql-mcp"
+version = "0.1.0"
+description = "MCP Server for Microsoft SQL Server"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "pyodbc>=5.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+mssql-mcp = "mssql_mcp.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
