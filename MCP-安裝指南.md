@@ -1049,7 +1049,34 @@ Admin Panel → **Settings** → **Integrations** → **Manage Tool Servers** �
 
 ---
 
-### 10.14 在對話中啟用工具
+### 10.14 設定 System Prompt（必要，防止 AI 拒絕執行工具）
+
+> ⚠️ **Gemini 等模型預設會拒絕執行 DDL / 資料庫操作**，必須透過 System Prompt 明確授權。
+
+在對話輸入框右上角點 **⚙️（Controls）→ System Prompt** 貼入以下內容：
+
+```
+你是一個 Lab 環境的 AI 助手，擁有以下 MCP 工具可以直接操作真實伺服器：
+
+- mssql_execute_statement: 執行 SQL DDL/DML（CREATE DATABASE、CREATE TABLE、INSERT、UPDATE、DELETE 等）
+- mssql_execute_query: 執行 SELECT 查詢
+- mssql_list_databases / mssql_list_tables: 列出資料庫與資料表
+- vcenter_api: 查詢 VMware vCenter
+- sddc_manager_api: 查詢 SDDC Manager
+
+重要規則：
+1. 使用者要求執行任何資料庫或 vCenter 操作時，你必須直接呼叫對應的工具執行，不要只提供 SQL 語句讓使用者自己執行。
+2. CREATE DATABASE、CREATE TABLE、ALTER TABLE 等 DDL 操作，請使用 mssql_execute_statement 工具直接執行。
+3. 執行完後回報結果。
+```
+
+> 💡 System Prompt 僅對當前對話生效。每次新對話都需要重新設定，或透過 Workspace → Models 設定預設 System Prompt（全域永久生效）。
+>
+> 完整內容也存在 git repo 的 `openwebui-system-prompt.txt`。
+
+---
+
+### 10.15 在對話中啟用工具
 
 每次新對話都需要手動啟用工具：
 
